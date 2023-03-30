@@ -12,6 +12,8 @@
     const [, , ...weights] = weight.split(';')
     const [, , ...ideals] = ideal.split(';')
 
+    const totalWeight = weights.reduce((acc, curr) => acc + Number(curr), 0)
+
     for (let i = 0; i < lines.length; i++) {
       const [code, name, ...values] = lines[i].split(';')
 
@@ -20,7 +22,7 @@
       for (let j = 0; j < values.length; j++) {
         departments[i].indicators[j] = {
           name: headers[j],
-          weight: Number(weights[j]),
+          weight: (Number(weights[j]) * 100) / totalWeight,
           value: Number(values[j]),
           ideal: Number(ideals[j]),
           gap: Math.abs(Number(ideals[j]) - Number(values[j])),
@@ -44,7 +46,7 @@
         const indicator = department.indicators[i]
         const variant = variants[i]
         indicator.quality = 1 - (indicator.gap - variant.min) / (variant.max - variant.min)
-        department.quality += indicator.quality * (indicator.weight / 100)
+        department.quality += indicator.quality * indicator.weight
       }
     }
 
@@ -61,7 +63,7 @@
     let max
 
     for (const department of departments) {
-      const value = department.quality * 100
+      const value = department.quality
       min = min ? Math.min(min, value) : value
       max = max ? Math.max(max, value) : value
       serie.data.push({ name: department.name, value })
