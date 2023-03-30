@@ -1,0 +1,16 @@
+#tooltip {
+  position: absolute;
+  z-index: 1;
+}
+
+#tooltip > div {
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid #303030;
+  border-radius: 0.25rem;
+  padding: 1rem;
+}
+
+main {
+  width: 800px;
+  height: 800px;
+}
