@@ -48,10 +48,25 @@
     return departments
   }
 
+  function formatIndicator(indicator) {
+    const value = Math.round(indicator.value)
+    const quality = Math.round(indicator.quality * 100)
+    return `<li>${indicator.name} : ${value} (${quality}%)</li>`
+  }
+
+  function formatTooltip(params) {
+    const indicators = params.data.indicators.sort((i1, i2) => i2.weight - i1.weight)
+    return `<b>${params.data.code} - ${params.data.name} : ${Math.round(params.data.value)}%</b>
+    <ul>
+    ${indicators.map(formatIndicator).join('')}
+    </ul>`
+  }
+
   function onCsv() {
     const departments = parseCsv(this.result)
 
     chart.setOption({
+      tooltip: { formatter: formatTooltip },
       visualMap: {
         min: Math.min(...departments.map((department) => department.value)),
         max: Math.max(...departments.map((department) => department.value)),
