@@ -1,9 +1,4 @@
 ;(function () {
-  function triangular(n) {
-    if (n <= 1) return n
-    return n + triangular(n - 1)
-  }
-
   function parseCsv(csv) {
     const departments = []
 
@@ -17,12 +12,12 @@
     for (let i = 0; i < lines.length; i++) {
       const [code, name, ...values] = lines[i].split(';')
 
-      departments[i] = departments[i] || { code, name, quality: 0, indicators: [] }
+      departments[i] = departments[i] || { code, name, value: 0, indicators: [] }
 
       for (let j = 0; j < values.length; j++) {
         departments[i].indicators[j] = {
           name: headers[j],
-          weight: (Number(weights[j]) * 100) / totalWeight,
+          weight: Number(weights[j]),
           value: Number(values[j]),
           ideal: Number(ideals[j]),
           gap: Math.abs(Number(ideals[j]) - Number(values[j])),
@@ -46,7 +41,7 @@
         const indicator = department.indicators[i]
         const variant = variants[i]
         indicator.quality = 1 - (indicator.gap - variant.min) / (variant.max - variant.min)
-        department.quality += indicator.quality * indicator.weight
+        department.value += (indicator.quality * (indicator.weight * 100)) / totalWeight
       }
     }
 
@@ -56,45 +51,25 @@
   function onCsv() {
     const departments = parseCsv(this.result)
 
-    const details = {}
-    const serie = { top: 0, left: 0, bottom: 0, right: 0, name: 'Qualité', type: 'map', map: 'France', data: [] }
-
-    let min
-    let max
-
-    for (const department of departments) {
-      const value = department.quality
-      min = min ? Math.min(min, value) : value
-      max = max ? Math.max(max, value) : value
-      serie.data.push({ name: department.name, value })
-      const lines = department.indicators
-        .sort((i1, i2) => i2.weight - i1.weight)
-        .map((indicator) => `<li>${indicator.name}: ${indicator.value} (${Math.round(indicator.quality * 100)}%)</li>`)
-      details[department.name] = `<div><b>${department.code} - ${department.name}: ${Math.round(
-        value
-      )}%</b><ul>${lines.join('')}</ul></div>`
-    }
-
     chart.setOption({
-      tooltip: {
-        trigger: 'item',
-        formatter: ({ name }) => details[name],
-      },
       visualMap: {
-        min,
-        max,
-        inRange: {
-          color: ['red', 'yellow', 'green'],
-        },
+        min: Math.min(...departments.map((department) => department.value)),
+        max: Math.max(...departments.map((department) => department.value)),
+        inRange: { color: ['red', 'yellow', 'green'] },
         text: ['Qualité élevée', 'Basse qualité'],
       },
-      series: [serie],
+      series: [
+        { top: 0, left: 0, bottom: 0, right: 0, name: 'Qualité', type: 'map', map: 'France', data: departments },
+      ],
     })
   }
 
   echarts.registerMap('France', { geoJSON })
 
-  const chart = echarts.init(document.querySelector('main'))
+  const theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark2' : 'light'
+
+  const container = document.getElementById('map')
+  const chart = echarts.init(container, theme)
   chart.setOption({ geo: { top: 0, left: 0, bottom: 0, right: 0, map: 'France' } })
 
   document.querySelector('input').addEventListener('change', (e) => {

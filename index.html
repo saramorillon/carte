@@ -1,15 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
   <head>
     <meta charset="utf-8" />
     <title>Carte des departements</title>
     <script src="echarts.min.js" defer></script>
+    <script src="dark.js" defer></script>
     <script src="geo.js" defer></script>
     <script src="index.js" defer></script>
-    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@saramorillon/minicss@1.2.8/dist/minicss.css" />
+    <link rel="stylesheet" href="https://unpkg.com/basscss@8.0.2/css/basscss.min.css" />
   </head>
   <body>
-    <input type="file" accept="csv" />
-    <main></main>
+    <main>
+      <label>
+        <input type="file" accept=".csv" />
+      </label>
+      <div id="map" style="width: 760px; height: 760px"></div>
+    </main>
   </body>
 </html>
